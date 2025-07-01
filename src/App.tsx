@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { FileUpload } from './components/FileUpload';
-import { AudioPlayer } from './components/AudioPlayer';
-import { AnnotationsList } from './components/AnnotationsList';
+import { TimelineView } from './components/TimelineView';
 import type { AudioState, Annotation } from './types';
 import './App.css';
 
@@ -55,26 +54,22 @@ function App() {
       </header>
 
       <main className="app-main">
-        <div className="left-panel">
+        <div className="file-upload-section">
           <FileUpload onAudioLoad={handleAudioLoad} />
-          {audioState.url && (
-            <AudioPlayer
+        </div>
+
+        {audioState.url && (
+          <div className="timeline-section">
+            <TimelineView
               audioState={audioState}
               onAudioStateChange={handleAudioStateChange}
               annotations={annotations}
               onAddAnnotation={handleAddAnnotation}
+              onUpdateAnnotation={handleUpdateAnnotation}
+              onDeleteAnnotation={handleDeleteAnnotation}
             />
-          )}
-        </div>
-
-        <div className="right-panel">
-          <AnnotationsList
-            annotations={annotations}
-            onUpdateAnnotation={handleUpdateAnnotation}
-            onDeleteAnnotation={handleDeleteAnnotation}
-            onSeekToAnnotation={handleSeekToAnnotation}
-          />
-        </div>
+          </div>
+        )}
       </main>
     </div>
   );

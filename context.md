@@ -33,6 +33,8 @@ We do not need to include these features in any current work, I just want them h
 - Shareable project URLs for collaboration with teachers
 - Persistent storage (local or cloud-based)
 - YouTube or Spotify integration (if licensing/logistics allow)
+- **Timeline zoom in/out** - Adjust granularity to show more or less detail per page width
+- **Timeline overview/mini-map** - Quick navigation to different parts of longer audio files
 
 ## Architecture ✅ IMPLEMENTED
 
@@ -46,17 +48,16 @@ We do not need to include these features in any current work, I just want them h
 - **Storage**: In-memory only for MVP. Future: localStorage, Supabase, or Firebase.
 - **UI Components**:
   - `FileUpload`: Handles file upload and URL input
-  - `AudioPlayer`: Custom timeline with progress bar, annotation markers, and controls
-  - `AnnotationsList`: Sidebar with editable annotation list, ordered by timestamp
-- **Layout**: Two-panel design (left: upload + player, right: annotations)
+  - `TimelineView`: Multi-line timeline with inline annotations and controls
+- **Layout**: Timeline-focused design with file upload at top, scrollable timeline below
 - **Features**:
   - ✅ Simple timeline with time markings, current position indicator, and annotation markers
   - ✅ Basic audio controls (play/pause, seek)
   - ✅ Button to add annotations at current playback time
-  - ✅ Annotations list in sidebar, ordered by timestamp
-  - ✅ Click annotation timestamps to seek to that point
-  - ✅ Inline editing of annotation text
-  - ✅ Delete annotations
+  - ✅ Multi-line timeline (30 seconds per line) with horizontal scrolling
+  - ✅ Inline annotation bubbles with connecting lines to timeline
+  - ✅ Annotations stacked vertically when overlapping
+  - ✅ Inline editing and deletion of annotations
   - ✅ Keyboard shortcut: Press "A" to add annotation at current time
   - (Future) Additional keyboard shortcuts for other actions
   - (Future) Annotation layers and advanced timeline features
