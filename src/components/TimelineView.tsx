@@ -23,6 +23,7 @@ export const TimelineView: React.FC<TimelineViewProps> = ({
   const audioRef = useRef<HTMLAudioElement>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editText, setEditText] = useState('');
+  const [focusedAnnotationId, setFocusedAnnotationId] = useState<string | null>(null);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -123,6 +124,21 @@ export const TimelineView: React.FC<TimelineViewProps> = ({
     setEditText('');
   };
 
+  const handleAnnotationClick = (annotationId: string) => {
+    if (focusedAnnotationId === annotationId) {
+      setFocusedAnnotationId(null); // Click again to unfocus
+    } else {
+      setFocusedAnnotationId(annotationId); // Focus this annotation
+    }
+  };
+
+  const getZIndex = (annotationId: string, index: number): number => {
+    if (focusedAnnotationId === annotationId) {
+      return 1000; // Focused annotation always on top
+    }
+    return index + 1; // Normal z-index based on order
+  };
+
   if (!audioState.url) {
     return <div>No audio file loaded</div>;
   }
@@ -173,32 +189,45 @@ export const TimelineView: React.FC<TimelineViewProps> = ({
                 )}
               </div>
 
-              {/* Timeline track */}
-              <div 
-                className="timeline-track"
-                onClick={(e) => {
-                  const rect = e.currentTarget.getBoundingClientRect();
-                  handleSeek(lineIndex, e.clientX - rect.left, rect.width);
-                }}
-              >
+              {/* Timeline track with continuous connecting lines */}
+              <div className="timeline-section">
                 <div 
-                  className="timeline-progress" 
-                  style={{ 
-                    width: isCurrentLine 
-                      ? `${getPositionInLine(audioState.currentTime) * 100}%`
-                      : lineIndex < currentLine ? '100%' : '0%'
+                  className="timeline-track"
+                  onClick={(e) => {
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    handleSeek(lineIndex, e.clientX - rect.left, rect.width);
                   }}
-                />
-                
-                {/* Annotation markers on timeline */}
+                >
+                  <div 
+                    className="timeline-progress" 
+                    style={{ 
+                      width: isCurrentLine 
+                        ? `${getPositionInLine(audioState.currentTime) * 100}%`
+                        : lineIndex < currentLine ? '100%' : '0%'
+                    }}
+                  />
+                  
+                  {/* Annotation markers on timeline */}
+                  {lineAnnotations.map((annotation) => (
+                    <div
+                      key={annotation.id}
+                      className="annotation-marker"
+                      style={{ 
+                        left: `${getPositionInLine(annotation.time) * 100}%`
+                      }}
+                      title={`${formatTime(annotation.time)}: ${annotation.text}`}
+                    />
+                  ))}
+                </div>
+
+                {/* Continuous connecting lines */}
                 {lineAnnotations.map((annotation) => (
                   <div
-                    key={annotation.id}
-                    className="annotation-marker"
-                    style={{ 
+                    key={`line-${annotation.id}`}
+                    className="annotation-connecting-line"
+                    style={{
                       left: `${getPositionInLine(annotation.time) * 100}%`
                     }}
-                    title={`${formatTime(annotation.time)}: ${annotation.text}`}
                   />
                 ))}
               </div>
@@ -215,19 +244,22 @@ export const TimelineView: React.FC<TimelineViewProps> = ({
                         style={{
                           left: `${getPositionInLine(annotation.time) * 100}%`,
                           top: '0px',
-                          zIndex: index + 1
+                          zIndex: getZIndex(annotation.id, index)
                         }}
                         onMouseEnter={(e) => {
-                          e.currentTarget.style.zIndex = '1000';
+                          if (focusedAnnotationId !== annotation.id) {
+                            e.currentTarget.style.zIndex = '999';
+                          }
                         }}
                         onMouseLeave={(e) => {
-                          e.currentTarget.style.zIndex = (index + 1).toString();
+                          if (focusedAnnotationId !== annotation.id) {
+                            e.currentTarget.style.zIndex = getZIndex(annotation.id, index).toString();
+                          }
                         }}
                         onClick={(e) => {
-                          e.currentTarget.style.zIndex = '1000';
+                          handleAnnotationClick(annotation.id);
                         }}
                       >
-                        <div className="annotation-line" />
                         <div className="annotation-content">
                           <div className="annotation-header">
                             <div className="annotation-time">

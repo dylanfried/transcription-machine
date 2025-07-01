@@ -13,9 +13,9 @@ These features have been implemented and are working:
   - Play / Pause
   - Seek to specific time (click on timeline)
 - ✅ Add timestamped annotations manually during playback (via "Add Annotation" button).
-- ✅ Attach and edit text notes to each annotation (inline editing in sidebar).
+- ✅ Attach and edit text notes to each annotation (inline editing in timeline).
 - ✅ Delete annotations.
-- ✅ View a list of annotations in order by timestamp (sidebar).
+- ✅ View annotations inline on the timeline as speech bubbles with connecting lines.
 - ✅ Click on annotation timestamps to seek to that point in the audio.
 - ✅ All functionality is front-end only — no backend or persistence required.
 
@@ -50,6 +50,7 @@ We do not need to include these features in any current work, I just want them h
 - **UI Components**:
   - `FileUpload`: Handles file upload and URL input
   - `TimelineView`: Multi-line timeline with inline annotations and controls
+  - `AudioPlayer`: Audio playback controls (integrated into TimelineView)
 - **Layout**: Timeline-focused design with file upload at top, scrollable timeline below
 - **Features**:
   - ✅ Simple timeline with time markings, current position indicator, and annotation markers
@@ -60,6 +61,8 @@ We do not need to include these features in any current work, I just want them h
   - ✅ Annotations stacked vertically when overlapping
   - ✅ Inline editing and deletion of annotations
   - ✅ Keyboard shortcut: Press "A" to add annotation at current time
+  - ✅ Focus behavior: hover and click bring annotations to front
+  - ✅ Continuous connecting lines from timeline to annotation bubbles
   - (Future) Additional keyboard shortcuts for other actions
   - (Future) Annotation layers and advanced timeline features
 
@@ -69,3 +72,4 @@ We do not need to include these features in any current work, I just want them h
 - File management and persistence are intentionally deferred from the MVP to reduce complexity.
 - MVP is fully functional and ready for use.
 - All components are modular and designed to support future feature additions.
+- Current implementation uses a timeline-focused layout with inline annotations rather than a sidebar approach.
