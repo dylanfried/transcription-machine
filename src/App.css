@@ -40,3 +40,242 @@
 .read-the-docs {
   color: #888;
 }
+
+/* App Layout */
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-header {
+  background-color: #f8f9fa;
+  padding: 1rem;
+  border-bottom: 1px solid #dee2e6;
+  text-align: center;
+}
+
+.app-header h1 {
+  margin: 0;
+  color: #333;
+}
+
+.app-main {
+  flex: 1;
+  display: flex;
+  gap: 2rem;
+  padding: 2rem;
+}
+
+.left-panel {
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.right-panel {
+  flex: 1;
+  min-width: 300px;
+}
+
+/* File Upload */
+.file-upload {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 1px solid #dee2e6;
+}
+
+.file-upload h3 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
+.upload-section,
+.url-section {
+  margin-bottom: 1rem;
+}
+
+.upload-section label,
+.url-section label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.url-input-group {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.url-input-group input {
+  flex: 1;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+/* Audio Player */
+.audio-player {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 1px solid #dee2e6;
+}
+
+.timeline {
+  margin-bottom: 1rem;
+}
+
+.timeline-track {
+  position: relative;
+  height: 20px;
+  background: #e9ecef;
+  border-radius: 10px;
+  cursor: pointer;
+  margin-bottom: 0.5rem;
+}
+
+.timeline-progress {
+  height: 100%;
+  background: #007bff;
+  border-radius: 10px;
+  transition: width 0.1s ease;
+}
+
+.annotation-marker {
+  position: absolute;
+  top: -2px;
+  width: 4px;
+  height: 24px;
+  background: #dc3545;
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+.timeline-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.875rem;
+  color: #6c757d;
+}
+
+.controls {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.controls button {
+  padding: 0.5rem 1rem;
+  border: 1px solid #007bff;
+  background: #007bff;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.controls button:hover:not(:disabled) {
+  background: #0056b3;
+}
+
+.controls button:disabled {
+  background: #6c757d;
+  border-color: #6c757d;
+  cursor: not-allowed;
+}
+
+/* Annotations List */
+.annotations-list {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 1px solid #dee2e6;
+  height: fit-content;
+}
+
+.annotations-list h3 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
+.annotations-list ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.annotation-item {
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+  padding: 1rem;
+}
+
+.annotation-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.annotation-time {
+  font-weight: 500;
+  color: #007bff;
+  cursor: pointer;
+}
+
+.annotation-time:hover {
+  text-decoration: underline;
+}
+
+.annotation-actions {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.annotation-actions button {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+  border: 1px solid #6c757d;
+  background: white;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.annotation-actions button:hover {
+  background: #f8f9fa;
+}
+
+.annotation-text {
+  margin: 0;
+  line-height: 1.4;
+}
+
+.annotation-edit textarea {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  resize: vertical;
+  margin-bottom: 0.5rem;
+}
+
+.edit-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.edit-actions button {
+  padding: 0.25rem 0.75rem;
+  border: 1px solid #007bff;
+  background: #007bff;
+  color: white;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.edit-actions button:last-child {
+  background: #6c757d;
+  border-color: #6c757d;
+}
