@@ -58,7 +58,7 @@ export const TimelineView: React.FC<TimelineViewProps> = ({
     };
   }, [onAudioStateChange]);
 
-  // Keyboard shortcut for adding annotations
+  // Keyboard shortcut for adding annotations and play/pause
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
       if (!audioState.url || event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) {
@@ -68,6 +68,17 @@ export const TimelineView: React.FC<TimelineViewProps> = ({
       if (event.key.toLowerCase() === 'a') {
         event.preventDefault();
         onAddAnnotation(audioState.currentTime);
+      }
+      if (event.code === 'Space') {
+        event.preventDefault();
+        const audio = audioRef.current;
+        if (audio) {
+          if (audio.paused) {
+            audio.play();
+          } else {
+            audio.pause();
+          }
+        }
       }
     };
 
@@ -168,17 +179,31 @@ export const TimelineView: React.FC<TimelineViewProps> = ({
                 </span>
                 {isCurrentLine && (
                   <div className="line-controls">
-                    <button 
-                      onClick={() => audioRef.current?.play()}
-                      disabled={audioState.isPlaying}
+                    <button
+                      onClick={() => {
+                        const audio = audioRef.current;
+                        if (audio) {
+                          if (audio.paused) {
+                            audio.play();
+                          } else {
+                            audio.pause();
+                          }
+                        }
+                      }}
+                      aria-label={audioState.isPlaying ? 'Pause' : 'Play'}
                     >
-                      Play
-                    </button>
-                    <button 
-                      onClick={() => audioRef.current?.pause()}
-                      disabled={!audioState.isPlaying}
-                    >
-                      Pause
+                      {audioState.isPlaying ? (
+                        // Pause icon
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <rect x="4" y="3" width="4" height="14" rx="1" fill="white" />
+                          <rect x="12" y="3" width="4" height="14" rx="1" fill="white" />
+                        </svg>
+                      ) : (
+                        // Play icon
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <polygon points="5,3 17,10 5,17" fill="white" />
+                        </svg>
+                      )}
                     </button>
                     <button 
                       onClick={() => onAddAnnotation(audioState.currentTime)}
@@ -318,7 +343,7 @@ export const TimelineView: React.FC<TimelineViewProps> = ({
 
       {/* Keyboard shortcuts info */}
       <div className="keyboard-shortcuts">
-        <small>Keyboard shortcuts: Press <kbd>A</kbd> to add annotation</small>
+        <small>Keyboard shortcuts: Press <kbd>A</kbd> to add annotation, <kbd>Space</kbd> to play/pause</small>
       </div>
     </div>
   );
