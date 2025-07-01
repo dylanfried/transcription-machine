@@ -208,80 +208,75 @@ export const TimelineView: React.FC<TimelineViewProps> = ({
                 <div className="annotations-area">
                   {lineAnnotations
                     .sort((a, b) => a.time - b.time)
-                    .map((annotation, index) => {
-                      // Calculate position and check for overlaps
-                      const annotationLeft = getPositionInLine(annotation.time) * 100;
-                      let annotationTop = 0;
-                      
-                      // Check for overlap with previous annotations
-                      for (let i = 0; i < index; i++) {
-                        const prevAnnotation = lineAnnotations[i];
-                        const prevLeft = getPositionInLine(prevAnnotation.time) * 100;
-                        
-                        // Check if bubbles overlap (assuming 150px width)
-                        // Only stack if they're within 150px horizontally and at the same vertical level
-                        const horizontalOverlap = Math.abs(annotationLeft - prevLeft) < 150;
-                        const verticalOverlap = annotationTop === 0; // Only check if we're at the base level
-                        
-                        if (horizontalOverlap && verticalOverlap) {
-                          annotationTop += 40; // Stack vertically
-                        }
-                      }
-                      
-                      return (
-                        <div
-                          key={annotation.id}
-                          className="annotation-bubble"
-                          style={{
-                            left: `${annotationLeft}%`,
-                            top: `${annotationTop}px`
-                          }}
-                        >
-                          <div className="annotation-line" />
-                          <div className="annotation-content">
-                            <div className="annotation-header">
-                              <div className="annotation-time">
-                                {formatTime(annotation.time)}
-                              </div>
-                              <div className="annotation-actions">
-                                <button 
-                                  onClick={() => handleEdit(annotation)}
-                                  disabled={editingId === annotation.id}
-                                  className="edit-btn"
-                                >
-                                  Edit
-                                </button>
-                                <button 
-                                  onClick={() => onDeleteAnnotation(annotation.id)}
-                                  className="delete-btn"
-                                >
-                                  Delete
-                                </button>
+                    .map((annotation, index) => (
+                      <div
+                        key={annotation.id}
+                        className="annotation-bubble"
+                        style={{
+                          left: `${getPositionInLine(annotation.time) * 100}%`,
+                          top: '0px',
+                          zIndex: index + 1
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.zIndex = '1000';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.zIndex = (index + 1).toString();
+                        }}
+                        onClick={(e) => {
+                          e.currentTarget.style.zIndex = '1000';
+                        }}
+                      >
+                        <div className="annotation-line" />
+                        <div className="annotation-content">
+                          <div className="annotation-header">
+                            <div className="annotation-time">
+                              {formatTime(annotation.time)}
+                            </div>
+                            <div className="annotation-actions">
+                              <button 
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleEdit(annotation);
+                                }}
+                                disabled={editingId === annotation.id}
+                                className="edit-btn"
+                              >
+                                Edit
+                              </button>
+                              <button 
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  onDeleteAnnotation(annotation.id);
+                                }}
+                                className="delete-btn"
+                              >
+                                Delete
+                              </button>
+                            </div>
+                          </div>
+                          
+                          {editingId === annotation.id ? (
+                            <div className="annotation-edit">
+                              <textarea
+                                value={editText}
+                                onChange={(e) => setEditText(e.target.value)}
+                                rows={2}
+                                className="edit-textarea"
+                              />
+                              <div className="edit-actions">
+                                <button onClick={handleSave} className="save-btn">Save</button>
+                                <button onClick={handleCancel} className="cancel-btn">Cancel</button>
                               </div>
                             </div>
-                            
-                            {editingId === annotation.id ? (
-                              <div className="annotation-edit">
-                                <textarea
-                                  value={editText}
-                                  onChange={(e) => setEditText(e.target.value)}
-                                  rows={2}
-                                  className="edit-textarea"
-                                />
-                                <div className="edit-actions">
-                                  <button onClick={handleSave} className="save-btn">Save</button>
-                                  <button onClick={handleCancel} className="cancel-btn">Cancel</button>
-                                </div>
-                              </div>
-                            ) : (
-                              <div className="annotation-text">
-                                {annotation.text}
-                              </div>
-                            )}
-                          </div>
+                          ) : (
+                            <div className="annotation-text">
+                              {annotation.text}
+                            </div>
+                          )}
                         </div>
-                      );
-                    })}
+                      </div>
+                    ))}
                 </div>
               )}
             </div>

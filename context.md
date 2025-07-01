@@ -35,6 +35,7 @@ We do not need to include these features in any current work, I just want them h
 - YouTube or Spotify integration (if licensing/logistics allow)
 - **Timeline zoom in/out** - Adjust granularity to show more or less detail per page width
 - **Timeline overview/mini-map** - Quick navigation to different parts of longer audio files
+- Ability to have another person add comments to an annotation. This would allow us to share with a teacher and then have them comment on correctness. This could be coupled with the notion of a "user" that would show with each annotation and/or comment who left.
 
 ## Architecture ✅ IMPLEMENTED
 
