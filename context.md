@@ -6,6 +6,8 @@ This is a lightweight, browser-based tool to support ear training and music anal
 
 ## MVP Feature Set (v0.1)
 
+These are the features that we are currently working on. 
+
 - Upload or load an audio file via direct file input or external URL (e.g. MP3).
 - Display a simple timeline with basic audio playback controls:
   - Play / Pause
@@ -16,6 +18,8 @@ This is a lightweight, browser-based tool to support ear training and music anal
 - All functionality is front-end only — no backend or persistence required.
 
 ## Potential Future Features
+
+We do not need to include these features in any current work, I just want them here to remember and so that we can design effectively for them to be implemented in the future.
 
 - Audio slowdown (time-stretching) without pitch change
 - Pitch shifting
@@ -28,19 +32,22 @@ This is a lightweight, browser-based tool to support ear training and music anal
 - Persistent storage (local or cloud-based)
 - YouTube or Spotify integration (if licensing/logistics allow)
 
-## Suggested Architecture
+## Architecture
 
-- **Frontend**: React
-- **Audio Playback**: Native HTML5 `<audio>` + Web Audio API (or optionally Tone.js for more advanced playback control)
-- **Annotation Model**: Internal state (React state or context) with support for:
-  - `time: number`
-  - `text: string`
-  - `layer?: string`
+- **Frontend**: React + TypeScript
+- **Audio Playback**: Native HTML5 `<audio>` element (simple, reliable, and sufficient for MVP; Tone.js or Web Audio API can be considered for advanced features in the future)
+- **Annotation Model**: Internal state (React state) with support for:
+  - `time: number` (timestamp in seconds)
+  - `text: string` (annotation content)
+  - `layer?: string` (for future support of multiple annotation types)
 - **Storage**: In-memory only for MVP. Future: localStorage, Supabase, or Firebase.
-- **UI**: 
-  - Simple timeline UI with play/pause/seek
-  - Keyboard-based input for dropping annotations (e.g. press “A” to drop, then edit text)
-  - Optional: Annotations list in sidebar
+- **UI**:
+  - Simple timeline with time markings, current position indicator, and annotation markers
+  - Basic audio controls (play/pause, seek)
+  - Button to add annotations at current playback time
+  - Annotations list in sidebar, ordered by timestamp
+  - (Future) Keyboard-based input for dropping annotations (e.g. press "A" to drop, then edit text)
+  - (Future) Annotation layers and advanced timeline features
 
 ## Notes
 
