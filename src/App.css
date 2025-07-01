@@ -185,6 +185,21 @@
   cursor: not-allowed;
 }
 
+.keyboard-shortcuts {
+  margin-top: 0.5rem;
+  text-align: center;
+  color: #6c757d;
+}
+
+.keyboard-shortcuts kbd {
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 3px;
+  padding: 0.125rem 0.25rem;
+  font-size: 0.75rem;
+  font-family: monospace;
+}
+
 /* Annotations List */
 .annotations-list {
   background: white;

@@ -50,6 +50,26 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
     };
   }, [onAudioStateChange]);
 
+  // Keyboard shortcut for adding annotations
+  useEffect(() => {
+    const handleKeyPress = (event: KeyboardEvent) => {
+      // Only trigger if audio is loaded and we're not in an input field
+      if (!audioState.url || event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) {
+        return;
+      }
+
+      if (event.key.toLowerCase() === 'a') {
+        event.preventDefault();
+        onAddAnnotation(audioState.currentTime);
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyPress);
+    return () => {
+      document.removeEventListener('keydown', handleKeyPress);
+    };
+  }, [audioState.url, audioState.currentTime, onAddAnnotation]);
+
   const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {
     const audio = audioRef.current;
     if (!audio || !audioState.duration) return;
@@ -116,8 +136,13 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
         <button 
           onClick={() => onAddAnnotation(audioState.currentTime)}
         >
-          Add Annotation
+          Add Annotation (A)
         </button>
+      </div>
+      
+      {/* Keyboard shortcuts info */}
+      <div className="keyboard-shortcuts">
+        <small>Keyboard shortcuts: Press <kbd>A</kbd> to add annotation</small>
       </div>
     </div>
   );

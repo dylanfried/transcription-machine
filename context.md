@@ -57,7 +57,8 @@ We do not need to include these features in any current work, I just want them h
   - ✅ Click annotation timestamps to seek to that point
   - ✅ Inline editing of annotation text
   - ✅ Delete annotations
-  - (Future) Keyboard-based input for dropping annotations (e.g. press "A" to drop, then edit text)
+  - ✅ Keyboard shortcut: Press "A" to add annotation at current time
+  - (Future) Additional keyboard shortcuts for other actions
   - (Future) Annotation layers and advanced timeline features
 
 ## Notes
