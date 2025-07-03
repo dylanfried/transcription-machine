@@ -13,6 +13,16 @@ export interface AudioState {
   duration: number;
 }
 
+export interface ProjectData {
+  name: string;
+  audioUrl: string;
+  createdAt: string;
+  lastModified: string;
+  layers: Layer[];
+  annotations: Annotation[];
+  audioState: AudioState;
+}
+
 export interface WaveformData {
   samples: number[]; // Array of volume levels (0-1)
   sampleRate: number; // How many samples per second

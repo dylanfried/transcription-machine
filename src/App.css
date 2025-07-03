@@ -52,12 +52,30 @@
   background-color: #f8f9fa;
   padding: 1rem;
   border-bottom: 1px solid #dee2e6;
-  text-align: center;
+}
+
+.app-header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .app-header h1 {
   margin: 0;
   color: #333;
+  font-size: 1.5rem;
+}
+
+.app-header-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.app-header-actions button {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
 }
 
 .app-main {
@@ -663,6 +681,169 @@
 .create-layer-actions button:last-child:hover {
   background: #f8f9fa;
 }
+
+/* Project Manager Styles */
+.project-manager {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.project-manager-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.project-manager-header h1 {
+  font-size: 2.5rem;
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+.project-manager-header p {
+  font-size: 1.1rem;
+  color: #666;
+}
+
+.project-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-bottom: 3rem;
+}
+
+.project-option {
+  background: white;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 2rem;
+  text-align: center;
+}
+
+.project-option h3 {
+  font-size: 1.5rem;
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+.project-option p {
+  color: #666;
+  margin-bottom: 1.5rem;
+}
+
+.create-project-form {
+  text-align: left;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.form-group small {
+  display: block;
+  color: #6c757d;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+}
+
+.btn-primary,
+.btn-secondary {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.btn-primary {
+  background: #007bff;
+  color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: #0056b3;
+}
+
+.btn-primary:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background: #6c757d;
+  color: white;
+}
+
+.btn-secondary:hover {
+  background: #545b62;
+}
+
+.load-project-actions {
+  display: flex;
+  justify-content: center;
+}
+
+.project-help {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.project-help h4 {
+  color: #333;
+  margin-bottom: 1rem;
+}
+
+.project-help ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.project-help li {
+  padding: 0.5rem 0;
+  color: #666;
+  position: relative;
+  padding-left: 1.5rem;
+}
+
+.project-help li:before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  color: #28a745;
+  font-weight: bold;
+}
+
+
 
 /* Adjust main content to account for layer manager */
 .app {

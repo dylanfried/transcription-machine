@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { FileUpload } from './components/FileUpload';
+import { ProjectManager } from './components/ProjectManager';
 import { TimelineView } from './components/TimelineView';
 import { LayerManager } from './components/LayerManager';
-import type { AudioState, Annotation, Layer } from './types';
+import type { AudioState, Annotation, Layer, ProjectData } from './types';
 import './App.css';
 
 function App() {
+  const [currentProject, setCurrentProject] = useState<ProjectData | null>(null);
   const [audioState, setAudioState] = useState<AudioState>({
     url: null,
     isPlaying: false,
@@ -14,7 +15,6 @@ function App() {
   });
 
   const [annotations, setAnnotations] = useState<Annotation[]>([]);
-  const [audioFile, setAudioFile] = useState<File | null>(null);
   
   // Layer management state
   const [layers, setLayers] = useState<Layer[]>([
@@ -30,9 +30,17 @@ function App() {
   const [activeLayerId, setActiveLayerId] = useState<string>('default');
   const [visibleLayerIds, setVisibleLayerIds] = useState<string[]>(['default']);
 
-  const handleAudioLoad = (url: string, file?: File) => {
-    setAudioState(prev => ({ ...prev, url, currentTime: 0 }));
-    setAudioFile(file || null);
+  const handleLoadProject = (projectData: ProjectData) => {
+    console.log('Loading project:', projectData);
+    console.log('Audio URL:', projectData.audioUrl);
+    console.log('Audio State:', projectData.audioState);
+    
+    setCurrentProject(projectData);
+    setAudioState(projectData.audioState);
+    setAnnotations(projectData.annotations);
+    setLayers(projectData.layers);
+    setActiveLayerId(projectData.layers.find(l => l.isActive)?.id || 'default');
+    setVisibleLayerIds(projectData.layers.filter(l => l.isVisible).map(l => l.id));
   };
 
   const handleAudioStateChange = (changes: Partial<AudioState>) => {
@@ -63,6 +71,53 @@ function App() {
 
   const handleSeekToAnnotation = (time: number) => {
     handleAudioStateChange({ currentTime: time });
+  };
+
+  const handleExportProject = () => {
+    if (!currentProject) return;
+
+    const exportData: ProjectData = {
+      ...currentProject,
+      lastModified: new Date().toISOString(),
+      annotations,
+      layers,
+      audioState,
+    };
+
+    const dataStr = JSON.stringify(exportData, null, 2);
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(dataBlob);
+    
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${currentProject.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleNewProject = () => {
+    setCurrentProject(null);
+    setAudioState({
+      url: null,
+      isPlaying: false,
+      currentTime: 0,
+      duration: 0,
+    });
+    setAnnotations([]);
+    setLayers([
+      {
+        id: 'default',
+        name: 'Default',
+        color: '#3B82F6',
+        isVisible: true,
+        isActive: true,
+        annotationCount: 0,
+      }
+    ]);
+    setActiveLayerId('default');
+    setVisibleLayerIds(['default']);
   };
 
   // Layer management handlers
@@ -140,6 +195,11 @@ function App() {
     );
   }, []);
 
+  // Show project manager if no project is loaded
+  if (!currentProject) {
+    return <ProjectManager onLoadProject={handleLoadProject} />;
+  }
+
   return (
     <>
       <LayerManager
@@ -156,19 +216,24 @@ function App() {
       
       <div className="app">
         <header className="app-header">
-          <h1>Music Annotation Tool</h1>
+          <div className="app-header-content">
+            <h1>{currentProject.name}</h1>
+            <div className="app-header-actions">
+              <button onClick={handleExportProject} className="btn-secondary">
+                Export Project
+              </button>
+              <button onClick={handleNewProject} className="btn-secondary">
+                New Project
+              </button>
+            </div>
+          </div>
         </header>
 
         <main className="app-main">
-          <div className="file-upload-section">
-            <FileUpload onAudioLoad={handleAudioLoad} />
-          </div>
-
           {audioState.url && (
             <div className="timeline-section">
               <TimelineView
                 audioState={audioState}
-                audioFile={audioFile}
                 onAudioStateChange={handleAudioStateChange}
                 annotations={annotations}
                 layers={layers}

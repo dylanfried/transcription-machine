@@ -5,7 +5,6 @@ import { analyzeAudioFile, analyzeAudioFromUrl } from '../utils/audioAnalysis';
 
 interface TimelineViewProps {
   audioState: AudioState;
-  audioFile?: File | null;
   onAudioStateChange: (state: Partial<AudioState>) => void;
   annotations: Annotation[];
   layers: Layer[];
@@ -19,7 +18,6 @@ const SECONDS_PER_LINE = 30; // 30 seconds per horizontal line
 
 export const TimelineView: React.FC<TimelineViewProps> = ({
   audioState,
-  audioFile,
   onAudioStateChange,
   annotations,
   layers,
@@ -44,18 +42,13 @@ export const TimelineView: React.FC<TimelineViewProps> = ({
       
       const analyzeAudio = async () => {
         try {
-          let data: WaveformData;
-          
-          if (audioFile) {
-            // Use the actual file for analysis
-            data = await analyzeAudioFile(audioFile);
-          } else if (audioState.url) {
-            // Fallback to URL analysis
-            data = await analyzeAudioFromUrl(audioState.url);
-          } else {
-            throw new Error('No audio file or URL provided');
+          // Use URL analysis for remote audio files
+          if (!audioState.url) {
+            throw new Error('No audio URL provided');
           }
-          
+          console.log('Starting audio analysis for:', audioState.url);
+          const data = await analyzeAudioFromUrl(audioState.url);
+          console.log('Audio analysis completed:', data);
           setWaveformData(data);
         } catch (error) {
           console.error('Failed to analyze audio:', error);
@@ -72,7 +65,7 @@ export const TimelineView: React.FC<TimelineViewProps> = ({
       
       analyzeAudio();
     }
-  }, [audioState.url, audioState.duration, audioFile]);
+  }, [audioState.url, audioState.duration]);
 
   // Measure timeline track width for waveform
   useEffect(() => {
@@ -280,7 +273,14 @@ export const TimelineView: React.FC<TimelineViewProps> = ({
         ref={audioRef} 
         src={audioState.url} 
         preload="metadata"
-        onError={(e) => console.error('Audio error:', e)}
+        onError={(e) => {
+          console.error('Audio error:', e);
+          console.error('Audio URL:', audioState.url);
+          console.error('Audio element:', audioRef.current);
+        }}
+        onLoadStart={() => console.log('Audio loading started:', audioState.url)}
+        onCanPlay={() => console.log('Audio can play:', audioState.url)}
+        onLoadedMetadata={() => console.log('Audio metadata loaded:', audioState.url)}
       />
       
       <div className="timeline-container">
