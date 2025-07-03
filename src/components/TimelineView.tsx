@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
-import type { AudioState, Annotation, WaveformData } from '../types';
+import type { AudioState, Annotation, WaveformData, Layer } from '../types';
 import { Waveform } from './Waveform';
 import { analyzeAudioFile, analyzeAudioFromUrl } from '../utils/audioAnalysis';
 
@@ -8,6 +8,8 @@ interface TimelineViewProps {
   audioFile?: File | null;
   onAudioStateChange: (state: Partial<AudioState>) => void;
   annotations: Annotation[];
+  layers: Layer[];
+  visibleLayerIds: string[];
   onAddAnnotation: (time: number) => void;
   onUpdateAnnotation: (id: string, text: string) => void;
   onDeleteAnnotation: (id: string) => void;
@@ -20,6 +22,8 @@ export const TimelineView: React.FC<TimelineViewProps> = ({
   audioFile,
   onAudioStateChange,
   annotations,
+  layers,
+  visibleLayerIds,
   onAddAnnotation,
   onUpdateAnnotation,
   onDeleteAnnotation,
@@ -284,7 +288,9 @@ export const TimelineView: React.FC<TimelineViewProps> = ({
           const lineStartTime = lineIndex * SECONDS_PER_LINE;
           const lineEndTime = Math.min((lineIndex + 1) * SECONDS_PER_LINE, audioState.duration);
           const lineAnnotations = annotations.filter(
-            ann => ann.time >= lineStartTime && ann.time < lineEndTime
+            ann => ann.time >= lineStartTime && 
+                   ann.time < lineEndTime && 
+                   visibleLayerIds.includes(ann.layerId)
           );
           const isCurrentLine = lineIndex === currentLine;
 
@@ -442,6 +448,16 @@ export const TimelineView: React.FC<TimelineViewProps> = ({
                         }}
                       >
                         <div className="annotation-content">
+                          {/* Layer color bar */}
+                          {(() => {
+                            const layer = layers.find(l => l.id === annotation.layerId);
+                            return layer ? (
+                              <div 
+                                className="annotation-layer-bar"
+                                style={{ backgroundColor: layer.color }}
+                              />
+                            ) : null;
+                          })()}
                           <div className="annotation-header">
                             <div className="annotation-time">
                               {formatTime(annotation.time)}
