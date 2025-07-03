@@ -1,8 +1,11 @@
-import React, { useRef, useEffect, useState } from 'react';
-import type { AudioState, Annotation } from '../types';
+import React, { useRef, useEffect, useState, useCallback } from 'react';
+import type { AudioState, Annotation, WaveformData } from '../types';
+import { Waveform } from './Waveform';
+import { analyzeAudioFile, analyzeAudioFromUrl } from '../utils/audioAnalysis';
 
 interface TimelineViewProps {
   audioState: AudioState;
+  audioFile?: File | null;
   onAudioStateChange: (state: Partial<AudioState>) => void;
   annotations: Annotation[];
   onAddAnnotation: (time: number) => void;
@@ -14,6 +17,7 @@ const SECONDS_PER_LINE = 30; // 30 seconds per horizontal line
 
 export const TimelineView: React.FC<TimelineViewProps> = ({
   audioState,
+  audioFile,
   onAudioStateChange,
   annotations,
   onAddAnnotation,
@@ -24,6 +28,70 @@ export const TimelineView: React.FC<TimelineViewProps> = ({
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editText, setEditText] = useState('');
   const [focusedAnnotationId, setFocusedAnnotationId] = useState<string | null>(null);
+  const [waveformData, setWaveformData] = useState<WaveformData | null>(null);
+  const [zoomLevel, setZoomLevel] = useState(1);
+  const [timelineWidth, setTimelineWidth] = useState(800);
+  const [isAnalyzingAudio, setIsAnalyzingAudio] = useState(false);
+
+  // Analyze audio file when URL changes
+  useEffect(() => {
+    if (audioState.url && audioState.duration > 0) {
+      setIsAnalyzingAudio(true);
+      
+      const analyzeAudio = async () => {
+        try {
+          let data: WaveformData;
+          
+          if (audioFile) {
+            // Use the actual file for analysis
+            data = await analyzeAudioFile(audioFile);
+          } else if (audioState.url) {
+            // Fallback to URL analysis
+            data = await analyzeAudioFromUrl(audioState.url);
+          } else {
+            throw new Error('No audio file or URL provided');
+          }
+          
+          setWaveformData(data);
+        } catch (error) {
+          console.error('Failed to analyze audio:', error);
+          // Fallback to empty waveform data
+          setWaveformData({
+            samples: new Array(1000).fill(0.1),
+            sampleRate: 44100,
+            duration: audioState.duration
+          });
+        } finally {
+          setIsAnalyzingAudio(false);
+        }
+      };
+      
+      analyzeAudio();
+    }
+  }, [audioState.url, audioState.duration, audioFile]);
+
+  // Measure timeline track width for waveform
+  useEffect(() => {
+    const updateTimelineWidth = () => {
+      // Get the first timeline track element
+      const timelineTrack = document.querySelector('.timeline-track') as HTMLElement;
+      if (timelineTrack) {
+        const width = timelineTrack.offsetWidth;
+        setTimelineWidth(width);
+      }
+    };
+
+    // Update width after a short delay to ensure DOM is ready
+    const timeoutId = setTimeout(updateTimelineWidth, 100);
+    
+    // Add resize listener to update width when window is resized
+    window.addEventListener('resize', updateTimelineWidth);
+    
+    return () => {
+      clearTimeout(timeoutId);
+      window.removeEventListener('resize', updateTimelineWidth);
+    };
+  }, [audioState.duration, waveformData]); // Re-measure when audio duration or waveform data changes
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -45,18 +113,42 @@ export const TimelineView: React.FC<TimelineViewProps> = ({
       onAudioStateChange({ isPlaying: false });
     };
 
+    const handleEnded = () => {
+      onAudioStateChange({ isPlaying: false, currentTime: 0 });
+    };
+
     audio.addEventListener('timeupdate', handleTimeUpdate);
     audio.addEventListener('loadedmetadata', handleLoadedMetadata);
     audio.addEventListener('play', handlePlay);
     audio.addEventListener('pause', handlePause);
+    audio.addEventListener('ended', handleEnded);
+    audio.addEventListener('playing', handlePlay);
+    audio.addEventListener('waiting', handlePause);
 
     return () => {
       audio.removeEventListener('timeupdate', handleTimeUpdate);
       audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
       audio.removeEventListener('play', handlePlay);
       audio.removeEventListener('pause', handlePause);
+      audio.removeEventListener('ended', handleEnded);
+      audio.removeEventListener('playing', handlePlay);
+      audio.removeEventListener('waiting', handlePause);
     };
-  }, [onAudioStateChange]);
+  }, [audioState.url]); // Only recreate listeners when URL changes
+
+  // Manual time update fallback when audio is playing
+  useEffect(() => {
+    if (!audioState.isPlaying) return;
+
+    const interval = setInterval(() => {
+      const audio = audioRef.current;
+      if (audio && !audio.paused) {
+        onAudioStateChange({ currentTime: audio.currentTime });
+      }
+    }, 100); // Update every 100ms
+
+    return () => clearInterval(interval);
+  }, [audioState.isPlaying, onAudioStateChange]);
 
   // Keyboard shortcut for adding annotations and play/pause
   useEffect(() => {
@@ -72,11 +164,19 @@ export const TimelineView: React.FC<TimelineViewProps> = ({
       if (event.code === 'Space') {
         event.preventDefault();
         const audio = audioRef.current;
-        if (audio) {
-          if (audio.paused) {
-            audio.play();
-          } else {
-            audio.pause();
+        if (audio && audioState.duration > 0) {
+          try {
+            if (audio.paused) {
+              audio.play();
+              // Manual state update as fallback
+              onAudioStateChange({ isPlaying: true });
+            } else {
+              audio.pause();
+              // Manual state update as fallback
+              onAudioStateChange({ isPlaying: false });
+            }
+          } catch (error) {
+            console.error('Error controlling audio with spacebar:', error);
           }
         }
       }
@@ -154,12 +254,30 @@ export const TimelineView: React.FC<TimelineViewProps> = ({
     return <div>No audio file loaded</div>;
   }
 
+  if (isAnalyzingAudio) {
+    return (
+      <div className="timeline-view">
+        <div style={{ textAlign: 'center', padding: '2rem' }}>
+          <div>Analyzing audio file...</div>
+          <div style={{ fontSize: '0.875rem', color: '#6c757d', marginTop: '0.5rem' }}>
+            This may take a few seconds for large files
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const totalLines = Math.ceil(audioState.duration / SECONDS_PER_LINE);
   const currentLine = getCurrentLine();
 
   return (
     <div className="timeline-view">
-      <audio ref={audioRef} src={audioState.url} />
+      <audio 
+        ref={audioRef} 
+        src={audioState.url} 
+        preload="metadata"
+        onError={(e) => console.error('Audio error:', e)}
+      />
       
       <div className="timeline-container">
         {Array.from({ length: totalLines }, (_, lineIndex) => {
@@ -180,17 +298,26 @@ export const TimelineView: React.FC<TimelineViewProps> = ({
                 {isCurrentLine && (
                   <div className="line-controls">
                     <button
-                      onClick={() => {
-                        const audio = audioRef.current;
-                        if (audio) {
-                          if (audio.paused) {
-                            audio.play();
-                          } else {
-                            audio.pause();
+                                              onClick={async () => {
+                          const audio = audioRef.current;
+                          if (audio && audioState.duration > 0) {
+                            try {
+                              if (audio.paused) {
+                                await audio.play();
+                                // Manual state update as fallback
+                                onAudioStateChange({ isPlaying: true });
+                              } else {
+                                audio.pause();
+                                // Manual state update as fallback
+                                onAudioStateChange({ isPlaying: false });
+                              }
+                            } catch (error) {
+                              console.error('Error controlling audio:', error);
+                            }
                           }
-                        }
-                      }}
+                        }}
                       aria-label={audioState.isPlaying ? 'Pause' : 'Play'}
+                      disabled={!audioState.duration}
                     >
                       {audioState.isPlaying ? (
                         // Pause icon
@@ -223,6 +350,35 @@ export const TimelineView: React.FC<TimelineViewProps> = ({
                     handleSeek(lineIndex, e.clientX - rect.left, rect.width);
                   }}
                 >
+                  {/* Waveform background */}
+                  {waveformData && (
+                    <div className="waveform-container" style={{ 
+                      position: 'absolute', 
+                      top: '50%', 
+                      left: 0, 
+                      right: 0, 
+                      transform: 'translateY(-50%)', 
+                      zIndex: 0,
+                      height: '40px'
+                    }}>
+                      <Waveform
+                        data={waveformData}
+                        width={timelineWidth}
+                        height={40}
+                        zoomLevel={zoomLevel}
+                        startTime={lineStartTime}
+                        endTime={lineEndTime}
+                        onSeek={(time) => {
+                          const audio = audioRef.current;
+                          if (audio) {
+                            audio.currentTime = time;
+                            onAudioStateChange({ currentTime: time });
+                          }
+                        }}
+                      />
+                    </div>
+                  )}
+                  
                   <div 
                     className="timeline-progress" 
                     style={{ 

@@ -10,4 +10,10 @@ export interface AudioState {
   isPlaying: boolean;
   currentTime: number;
   duration: number;
+}
+
+export interface WaveformData {
+  samples: number[]; // Array of volume levels (0-1)
+  sampleRate: number; // How many samples per second
+  duration: number; // Total duration in seconds
 } 

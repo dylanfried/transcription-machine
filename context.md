@@ -27,7 +27,7 @@ We do not need to include these features in any current work, I just want them h
 - Pitch shifting
 - Looping playback over a selected region
 - Recording audio annotations (e.g., sing the tonic)
-- Visual waveform view
+- ✅ Real-time waveform visualization
 - Multiple annotation layers (e.g., chords, melody, key)
 - Show/hide layer toggles
 - Shareable project URLs for collaboration with teachers
@@ -40,21 +40,24 @@ We do not need to include these features in any current work, I just want them h
 ## Architecture ✅ IMPLEMENTED
 
 - **Frontend**: React + TypeScript (Vite)
-- **Audio Playback**: Native HTML5 `<audio>` element with custom timeline UI
+- **Audio Playback**: Native HTML5 `<audio>` element with custom timeline UI and real-time waveform analysis
 - **Annotation Model**: Internal state (React state) with support for:
   - `id: string` (unique identifier)
   - `time: number` (timestamp in seconds)
   - `text: string` (annotation content)
   - `layer?: string` (for future support of multiple annotation types)
 - **Storage**: In-memory only for MVP. Future: localStorage, Supabase, or Firebase.
+- **Audio Analysis**: Web Audio API for real-time waveform generation and analysis
 - **UI Components**:
   - `FileUpload`: Handles file upload and URL input
-  - `TimelineView`: Multi-line timeline with inline annotations and controls
+  - `TimelineView`: Multi-line timeline with inline annotations, controls, and waveform
+  - `Waveform`: Real-time audio waveform visualization component
   - `AudioPlayer`: Audio playback controls (integrated into TimelineView)
 - **Layout**: Timeline-focused design with file upload at top, scrollable timeline below
 - **Features**:
+  - ✅ Real-time waveform visualization using Web Audio API analysis
   - ✅ Simple timeline with time markings, current position indicator, and annotation markers
-  - ✅ Basic audio controls (play/pause, seek)
+  - ✅ Basic audio controls (play/pause, seek) with keyboard shortcuts (Space)
   - ✅ Button to add annotations at current playback time
   - ✅ Multi-line timeline (30 seconds per line) with horizontal scrolling
   - ✅ Inline annotation bubbles with connecting lines to timeline
@@ -63,6 +66,8 @@ We do not need to include these features in any current work, I just want them h
   - ✅ Keyboard shortcut: Press "A" to add annotation at current time
   - ✅ Focus behavior: hover and click bring annotations to front
   - ✅ Continuous connecting lines from timeline to annotation bubbles
+  - ✅ Semi-transparent progress bar that shows waveform underneath
+  - ✅ Responsive waveform that adjusts to window resizing
   - (Future) Additional keyboard shortcuts for other actions
   - (Future) Annotation layers and advanced timeline features
 

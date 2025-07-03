@@ -13,9 +13,11 @@ function App() {
   });
 
   const [annotations, setAnnotations] = useState<Annotation[]>([]);
+  const [audioFile, setAudioFile] = useState<File | null>(null);
 
-  const handleAudioLoad = (url: string) => {
+  const handleAudioLoad = (url: string, file?: File) => {
     setAudioState(prev => ({ ...prev, url, currentTime: 0 }));
+    setAudioFile(file || null);
   };
 
   const handleAudioStateChange = (changes: Partial<AudioState>) => {
@@ -62,6 +64,7 @@ function App() {
           <div className="timeline-section">
             <TimelineView
               audioState={audioState}
+              audioFile={audioFile}
               onAudioStateChange={handleAudioStateChange}
               annotations={annotations}
               onAddAnnotation={handleAddAnnotation}

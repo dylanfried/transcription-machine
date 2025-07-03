@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
 interface FileUploadProps {
-  onAudioLoad: (url: string) => void;
+  onAudioLoad: (url: string, file?: File) => void;
 }
 
 export const FileUpload: React.FC<FileUploadProps> = ({ onAudioLoad }) => {
@@ -11,7 +11,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onAudioLoad }) => {
     const file = event.target.files?.[0];
     if (file) {
       const url = URL.createObjectURL(file);
-      onAudioLoad(url);
+      onAudioLoad(url, file);
     }
   };
 
