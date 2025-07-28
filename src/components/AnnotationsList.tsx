@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import type { Annotation } from '../types';
 
 interface AnnotationsListProps {
@@ -14,6 +14,7 @@ export const AnnotationsList: React.FC<AnnotationsListProps> = ({
   onDeleteAnnotation,
   onSeekToAnnotation,
 }) => {
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editText, setEditText] = useState('');
 
@@ -40,6 +41,13 @@ export const AnnotationsList: React.FC<AnnotationsListProps> = ({
     setEditingId(null);
     setEditText('');
   };
+
+  // Select all text when editing starts
+  useEffect(() => {
+    if (editingId && textareaRef.current) {
+      textareaRef.current.select();
+    }
+  }, [editingId]);
 
   const sortedAnnotations = [...annotations].sort((a, b) => a.time - b.time);
 
@@ -78,9 +86,21 @@ export const AnnotationsList: React.FC<AnnotationsListProps> = ({
               {editingId === annotation.id ? (
                 <div className="annotation-edit">
                   <textarea
+                    ref={textareaRef}
                     value={editText}
                     onChange={(e) => setEditText(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        handleSave();
+                      }
+                      if (e.key === 'Escape') {
+                        e.preventDefault();
+                        handleCancel();
+                      }
+                    }}
                     rows={3}
+                    autoFocus
                   />
                   <div className="edit-actions">
                     <button onClick={handleSave}>Save</button>

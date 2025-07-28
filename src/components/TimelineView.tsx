@@ -27,6 +27,7 @@ export const TimelineView: React.FC<TimelineViewProps> = ({
   onDeleteAnnotation,
 }) => {
   const audioRef = useRef<HTMLAudioElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editText, setEditText] = useState('');
   const [focusedAnnotationId, setFocusedAnnotationId] = useState<string | null>(null);
@@ -66,6 +67,13 @@ export const TimelineView: React.FC<TimelineViewProps> = ({
       analyzeAudio();
     }
   }, [audioState.url, audioState.duration]);
+
+  // Select all text when editing starts
+  useEffect(() => {
+    if (editingId && textareaRef.current) {
+      textareaRef.current.select();
+    }
+  }, [editingId]);
 
   // Measure timeline track width for waveform
   useEffect(() => {
@@ -488,10 +496,22 @@ export const TimelineView: React.FC<TimelineViewProps> = ({
                           {editingId === annotation.id ? (
                             <div className="annotation-edit">
                               <textarea
+                                ref={textareaRef}
                                 value={editText}
                                 onChange={(e) => setEditText(e.target.value)}
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter' && !e.shiftKey) {
+                                    e.preventDefault();
+                                    handleSave();
+                                  }
+                                  if (e.key === 'Escape') {
+                                    e.preventDefault();
+                                    handleCancel();
+                                  }
+                                }}
                                 rows={2}
                                 className="edit-textarea"
+                                autoFocus
                               />
                               <div className="edit-actions">
                                 <button onClick={handleSave} className="save-btn">Save</button>
